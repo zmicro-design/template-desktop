@@ -1,0 +1,45 @@
+#!/bin/bash
+
+export DESKTOP_NAME="{{.DESKTOP_NAME}}"
+import "$ZMICRO_DESKTOPS_PATH/$DESKTOP_NAME/config"
+import "$ZMICRO_DESKTOPS_PATH/$DESKTOP_NAME/core"
+
+help() {
+  echo "Usage:"
+  echo "  zmicro {{.DESKTOP_NAME}} <args ...>"
+  echo ""
+
+  {{.DESKTOP_NAME}} --help
+}
+
+version() {
+  {{.DESKTOP_NAME}} --version
+}
+
+core() {
+  # context directory
+  local context="$ZMICRO_DESKTOPS_DATA_PATH/{{.DESKTOP_NAME}}"
+  if [ ! -d "$context" ]; then
+    mkdir -p $context
+  fi
+  cd $context
+  # context directory
+
+  case $1 in
+  -h | --help | help)
+    help
+    ;;
+  -v | --version | version)
+    version
+    ;;
+  *)
+    {{.DESKTOP_NAME}} "$@"
+    ;;
+  esac
+}
+
+run() {
+  core "$@"
+}
+
+run "$@"

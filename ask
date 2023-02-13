@@ -1,0 +1,6 @@
+#!/bin/bash
+
+os::inquirer DESKTOP_NAME "text" "Input Desktop Name" true
+os::inquirer DESKTOP_DESCRIPTION "text" "Input Desktop Description" true
+# os::inquirer DESKTOP_VERSION "text" "Input Desktop Version" true "v0.0.0"
+os::inquirer DESKTOP_HOMEPAGE "text" "Input Desktop Home Page" true
