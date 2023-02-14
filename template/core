@@ -13,20 +13,17 @@ install() {
   local platform="$DESKTOP_OS_PLATFORM"
   # usr_bin_dir
   local usr_bin_dir="$DESKTOP_USER_BIN_DIR"
+  local cache_dir="$DESKTOP_CACHE_DIR"
   local tmp_dir="$DESKTOP_TMP_DIR"
 
-  # #
-  # case $platform in
-  # darwin)
-  #   platform="osx"
-  #   ;;
-  # linux) ;;
-
-  # *)
-  #   log::error "[$(timestamp)] unsupport platform: $platform"
-  #   return 1
-  #   ;;
-  # esac
+  #
+  case $platform in
+  darwin) ;;
+  *)
+    log::error "[$(timestamp)] unsupport platform: $platform"
+    return 1
+    ;;
+  esac
 
   # case $arch in
   # arm64) ;;
@@ -41,87 +38,34 @@ install() {
   # esac
   # #
 
-  # template os
-  # case $os in
-  # macos)
-  #   pm install -y {{.DESKTOP_NAME}}1
-  #   ;;
-  # ubuntu)
-  #   pm install -y {{.DESKTOP_NAME}}2
-  #   ;;
-  # centos)
-  #   pm install -y {{.DESKTOP_NAME}}3
-  #   ;;
-  # alpine)
-  #   pm install -y {{.DESKTOP_NAME}}4
-  #   ;;
-  # archlinux)
-  #   pm install -y {{.DESKTOP_NAME}}5
-  #   ;;
-  # archlinux)
-  #   pm install -y {{.DESKTOP_NAME}}5
-  #   ;;
-  # fedora)
-  #   pm install -y {{.DESKTOP_NAME}}6
-  #   ;;
-  # *)
-  #   log::error "[$(timestamp)] unsupport os: $os ($(uname -m))"
-  #   return 1
-  # esac
-
   # files
-  local tmp_file="$name.tar.gz"
-  local source_bin_file="./${name}-${DESKTOP_CORE_VERSION#v}-${platform}-${arch}/$name"
-  # local target_bin_file="$usr_bin_dir/$name"
+  local cache_file="$cache_dir/$DESKTOP_CORE_VERSION.zip"
+  # local source_bin_file="./$name"
 
   # prepare context
+  log::info "[$(timestamp)][desktop][$name] context: $tmp_dir ..."
   cd $tmp_dir
 
-  # reference: https://github.com/9seconds/{{.DESKTOP_NAME}}/releases
-  # example:
-  #   https://github.com/9seconds/{{.DESKTOP_NAME}}/releases/download/v2.1.7/{{.DESKTOP_NAME}}-2.1.7-darwin-arm64.tar.gz
-  #   https://github.com/9seconds/{{.DESKTOP_NAME}}/releases/download/v2.1.7/{{.DESKTOP_NAME}}-2.1.7-darwin-amd64.tar.gz
-  # generate url
-  local url="${DESKTOP_CORE_RELEASE_DOWNLOAD}/$DESKTOP_CORE_VERSION/${name}-${DESKTOP_CORE_VERSION#v}-${platform}-${arch}.tar.gz"
-  log::debug "[$(timestamp)][desktop][$name][$kernel][$arch] url: $url, file: ${tmp_file}, tmp_dir: $tmp_dir"
+  local dv=$(echo ${DESKTOP_CORE_VERSION#v} | sed 's/\./_/g')
+  if [ -f "$cache_file" ]; then
+    log::info "[$(timestamp)][desktop][$name] found cache at $cache_file ..."
+  else
+    # reference: https://github.com/9seconds/iterm2/releases
+    # example:
+    #   https://iterm2.com/downloads/stable/iTerm2-3_4_19.zip
+    # generate url
+    local url="${DESKTOP_CORE_RELEASE_DOWNLOAD}/stable/iTerm2-${dv}.zip"
+    log::debug "[$(timestamp)][desktop][$name][$kernel][$arch] url: $url, file: ${cache_file}, tmp_dir: $tmp_dir"
 
-  # download
-  log::info "[$(timestamp)][desktop][$name] downloading ..."
-  os::download $tmp_file $url
-
-  # extract
-  log::info "[$(timestamp)][desktop][$name] extracting ..."
-  os::extract $tmp_file
+    # download
+    log::info "[$(timestamp)][desktop][$name] downloading from $url ..."
+    os::download $cache_file $url
+  fi
 
   # install
-  log::info "[$(timestamp)][desktop][$name] installing ..."
-  os::install $source_bin_file $usr_bin_dir $name
-
-  # Complex like maven-mvnd
-  #   # make executable
-  #   log::info "[$(timestamp)][desktop][$name] making executable ..."
-  #   chmod 755 $source_bin_file
-
-  #   # install
-  #   if [ -d "$usr_lib_dir/${name}" ]; then
-  #     log::info "[$(timestamp)][desktop][$name] removing old lib ..."
-  #     sudo rm -rf $usr_lib_dir/${name}
-  #   fi
-  #   log::info "[$(timestamp)][desktop][$name] installing lib ..."
-  #   sudo mv $lib_dir $usr_lib_dir/${name}
-
-  #   # install
-  #   log::info "[$(timestamp)][desktop][$name] installing bin ..."
-  #   sudo ln -sf $usr_lib_dir/${name}/bin/${DESKTOP_CORE_BIN_NAME} $usr_bin_dir/${DESKTOP_CORE_BIN_NAME}
-
-  #   # profile
-  #   log::success "[$(timestamp)][desktop][$name] config MVND_HOME=$usr_lib_dir/${name} to global env file ..."
-  #   local envs=$(
-  #     cat <<-END
-  # export MVND_HOME=$usr_lib_dir/${name}
-  # END
-  # )
-  #   config::profile "# ZMICRO DESKTOP MAVEN-MVND" "$envs"
+  log::info "[$(timestamp)][desktop][$name] installing $cache_file ..."
+  # os::install $source_bin_file $usr_bin_dir $name
+  install::zip $cache_file iTerm2 iTerm.app
 
   # clean
   log::info "[$(timestamp)][desktop][$name] cleaning ..."
