@@ -46,14 +46,14 @@ install() {
   log::info "[$(timestamp)][desktop][$name] context: $tmp_dir ..."
   cd $tmp_dir
 
-  local dv=$(echo ${DESKTOP_CORE_VERSION#v} | sed 's/\./_/g')
-  if [ -f "$cache_file" ]; then
+  if [ -f "$cache_file" ] && [ "$(os::md5 $cache_file)" = "$DESKTOP_CORE_MD5SUM" ]; then
     log::info "[$(timestamp)][desktop][$name] found cache at $cache_file ..."
   else
     # reference: https://github.com/9seconds/iterm2/releases
     # example:
     #   https://iterm2.com/downloads/stable/iTerm2-3_4_19.zip
     # generate url
+    local dv=$(echo ${DESKTOP_CORE_VERSION#v} | sed 's/\./_/g')
     local url="${DESKTOP_CORE_RELEASE_DOWNLOAD}/stable/iTerm2-${dv}.zip"
     log::debug "[$(timestamp)][desktop][$name][$kernel][$arch] url: $url, file: ${cache_file}, tmp_dir: $tmp_dir"
 

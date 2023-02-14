@@ -51,6 +51,6 @@ jobs:
           # - ubuntu-latest
           - macOS-latest
 
-    steps:
-      - name: Setup Zmicro Desktop CI
-        uses: zmicro-design/action-zmicro-desktop-ci@v1
+    # steps:
+    #   - name: Setup Zmicro Desktop CI
+    #     uses: zmicro-design/action-zmicro-desktop-ci@v1
