@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Setup Zmicro
-        uses: zmicro-design/action-setup-zmicro-desktop@v1
+        uses: zmicro-design/action-setup-zmicro@v1
 
     # steps:
     #   - name: Setup Zmicro Desktop CI
