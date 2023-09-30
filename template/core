@@ -123,7 +123,7 @@ install() {
     log::error "[$(timestamp)][desktop] failed to active app: ${app_name} (command: sudo xattr -rd com.apple.quarantine /Applications/${app_name})."
     return 1
   fi
-  log::info "[$(timestamp)][desktop] if it still has warning, please go to System Preferences -> Security & Privacy -> General, and click Open Anyway button."
+  log::warn "[$(timestamp)][desktop] if it still has warning, please go to System Preferences -> Security & Privacy -> General, and click Open Anyway button."
 
   # clean
   log::info "[$(timestamp)][desktop][$name] cleaning ..."
