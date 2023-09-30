@@ -39,22 +39,58 @@ install() {
   # #
 
   # files
-  local cache_file="$cache_dir/$DESKTOP_CORE_VERSION.zip"
+  local cache_file="$cache_dir/$DESKTOP_CORE_VERSION.dmg"
   # local source_bin_file="./$name"
 
   # prepare context
   log::info "[$(timestamp)][desktop][$name] context: $tmp_dir ..."
   cd $tmp_dir
 
-  if [ -f "$cache_file" ] && [ "$(os::md5 $cache_file)" = "$DESKTOP_CORE_MD5SUM" ]; then
+  local is_cached="false"
+  if [ -f "$cache_file" ]; then
+    local cache_file_checksum=$(os::sha256 $cache_file)
+    local cache_file_checksum_expect=""
+
+    case $DESKTOP_CORE_VERSION in
+    v1.2.0)
+      case $arch in
+      arm64)
+        cache_file_checksum_expect="9fa18ccd04bf1b7bed0311613c11c6b52f67f24193a211af92482f65ff745446"
+        ;;
+      amd64)
+        cache_file_checksum_expect="cbe42cf8ecc33b8e0c23849e2743256a8dcd1895c936b3d73d5ba96c5671bc6d"
+        ;;
+      esac
+      ;;
+    esac
+
+    if [ "$cache_file_checksum" = "$cache_file_checksum_expect" ]; then
+      is_cached="true"
+    fi
+  fi
+
+  if [ "$is_cached" = "true" ]; then
     log::info "[$(timestamp)][desktop][$name] found cache at $cache_file ..."
   else
     # reference: https://github.com/9seconds/iterm2/releases
     # example:
-    #   https://iterm2.com/downloads/stable/iTerm2-3_4_19.zip
+    #   https://github.com/whatwewant/clashz/releases/download/v1.2.0/ClashZ-1.2.0-arm64.dmg
+    #   https://github.com/whatwewant/clashz/releases/download/v1.2.0/ClashZ-1.2.0.dmg
     # generate url
-    local dv=$(echo ${DESKTOP_CORE_VERSION#v} | sed 's/\./_/g')
-    local url="${DESKTOP_CORE_RELEASE_DOWNLOAD}/stable/iTerm2-${dv}.zip"
+    local url=""
+    case $arch in
+    arm64)
+      url="${DESKTOP_CORE_RELEASE_DOWNLOAD}/${DESKTOP_CORE_VERSION}/ClashZ-${DESKTOP_CORE_VERSION#v}-arm64.dmg"
+      ;;
+    amd64)
+      url="${DESKTOP_CORE_RELEASE_DOWNLOAD}/${DESKTOP_CORE_VERSION}/ClashZ-${DESKTOP_CORE_VERSION#v}.dmg"
+      ;;
+    *)
+      log::error "[$(timestamp)] unsupport arch: $arch"
+      return 1
+      ;;
+    esac
+
     log::debug "[$(timestamp)][desktop][$name][$kernel][$arch] url: $url, file: ${cache_file}, tmp_dir: $tmp_dir"
 
     # download
@@ -64,8 +100,20 @@ install() {
 
   # install
   log::info "[$(timestamp)][desktop][$name] installing $cache_file ..."
-  # os::install $source_bin_file $usr_bin_dir $name
-  install::zip $cache_file iTerm2 iTerm.app
+  case $arch in
+  arm64)
+    install::dmg $cache_file ${name} "ClashZ.app" "/Volumes/ClashZ ${DESKTOP_CORE_VERSION#v}-arm64"
+    # install::zip $cache_file iTerm2 iTerm.app
+    ;;
+  amd64)
+    install::dmg $cache_file ${name} "ClashZ.app" "/Volumes/ClashZ ${DESKTOP_CORE_VERSION#v}"
+    # install::zip $cache_file iTerm2 iTerm.app
+    ;;
+  *)
+    log::error "[$(timestamp)] unsupport arch: $arch"
+    return 1
+    ;;
+  esac
 
   # clean
   log::info "[$(timestamp)][desktop][$name] cleaning ..."
