@@ -98,15 +98,16 @@ install() {
     os::download $cache_file $url
   fi
 
+  local app_name="ClashZ.app"
   # install
   log::info "[$(timestamp)][desktop][$name] installing $cache_file ..."
   case $arch in
   arm64)
-    install::dmg $cache_file ${name} "ClashZ.app" "/Volumes/ClashZ ${DESKTOP_CORE_VERSION#v}-arm64"
+    install::dmg $cache_file ${name} "${app_name}" "/Volumes/ClashZ ${DESKTOP_CORE_VERSION#v}-arm64"
     # install::zip $cache_file iTerm2 iTerm.app
     ;;
   amd64)
-    install::dmg $cache_file ${name} "ClashZ.app" "/Volumes/ClashZ ${DESKTOP_CORE_VERSION#v}"
+    install::dmg $cache_file ${name} "${app_name}" "/Volumes/ClashZ ${DESKTOP_CORE_VERSION#v}"
     # install::zip $cache_file iTerm2 iTerm.app
     ;;
   *)
@@ -114,6 +115,15 @@ install() {
     return 1
     ;;
   esac
+
+  # actve
+  log::info "[$(timestamp)][desktop] active app without warning which app is damaged and can't be opened ..."
+  sudo xattr -rd com.apple.quarantine /Applications/${app_name}
+  if [ "$?" != "0" ]; then
+    log::error "[$(timestamp)][desktop] failed to active app: ${app_name} (command: sudo xattr -rd com.apple.quarantine /Applications/${app_name})."
+    return 1
+  fi
+  log::info "[$(timestamp)][desktop] if it still has warning, please go to System Preferences -> Security & Privacy -> General, and click Open Anyway button."
 
   # clean
   log::info "[$(timestamp)][desktop][$name] cleaning ..."
