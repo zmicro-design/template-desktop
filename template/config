@@ -3,7 +3,6 @@
 export DESKTOP_CORE_NAME="{{.DESKTOP_NAME}}"
 export DESKTOP_CORE_BIN_NAME="$DESKTOP_CORE_NAME"
 export DESKTOP_CORE_VERSION=v1.2.0
-export DESKTOP_CORE_MD5SUM=5eeac1c71caff672e99d3f4180f09233
-export DESKTOP_CORE_ORG="microsoft"
+export DESKTOP_CORE_ORG="whatwewant"
 
 export DESKTOP_CORE_RELEASE_DOWNLOAD="https://github.com/${DESKTOP_CORE_ORG}/{{.DESKTOP_NAME}}/releases/download"
