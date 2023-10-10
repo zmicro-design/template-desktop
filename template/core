@@ -49,24 +49,17 @@ install() {
   local is_cached="false"
   if [ -f "$cache_file" ]; then
     local cache_file_checksum=$(os::sha256 $cache_file)
-    local cache_file_checksum_expect=""
+    local cache_file_checksum_line="${DESKTOP_CORE_VERSION}#${platform}#${arch}#${cache_file_checksum}"
 
-    case $DESKTOP_CORE_VERSION in
-    v1.2.0)
-      case $arch in
-      arm64)
-        cache_file_checksum_expect="9fa18ccd04bf1b7bed0311613c11c6b52f67f24193a211af92482f65ff745446"
-        ;;
-      amd64)
-        cache_file_checksum_expect="cbe42cf8ecc33b8e0c23849e2743256a8dcd1895c936b3d73d5ba96c5671bc6d"
-        ;;
-      esac
-      ;;
-    esac
+    # @TODO must reload config here for env DESKTOP_CORE_CHECKSUMS, or it will be empty
+    source $DESKTOP_DIR/config
 
-    if [ "$cache_file_checksum" = "$cache_file_checksum_expect" ]; then
-      is_cached="true"
-    fi
+    for checksum in ${DESKTOP_CORE_CHECKSUMS[@]}; do
+      if [ "$checksum" = "$cache_file_checksum_line" ]; then
+        is_cached="true"
+        break
+      fi
+    done
   fi
 
   if [ "$is_cached" = "true" ]; then

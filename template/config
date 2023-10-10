@@ -6,3 +6,8 @@ export DESKTOP_CORE_VERSION=v1.2.0
 export DESKTOP_CORE_ORG="whatwewant"
 
 export DESKTOP_CORE_RELEASE_DOWNLOAD="https://github.com/${DESKTOP_CORE_ORG}/{{.DESKTOP_NAME}}/releases/download"
+
+export DESKTOP_CORE_CHECKSUMS=(
+  v1.2.0#darwin#arm64#9fa18ccd04bf1b7bed0311613c11c6b52f67f24193a211af92482f65ff745446
+  v1.2.0#darwin#amd64#cbe42cf8ecc33b8e0c23849e2743256a8dcd1895c936b3d73d5ba96c5671bc6d
+)
